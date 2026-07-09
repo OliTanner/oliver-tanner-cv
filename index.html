@@ -273,7 +273,7 @@ class Component extends DCLogic {
   state = {
     c: 0, active: 0,
     t1: '', l2: false,
-    played: false, cv: { a: 0, b: 0, d: 0, e: 0, f: 0 },
+    played: false, cv: { a: 0, b: 0, d: 0, f: 0 },
     stage: 0, open: -1
   };
 
@@ -385,14 +385,14 @@ class Component extends DCLogic {
 
   startCounters() {
     if (this.state.played) return;
-    const done = { a: 38, b: 4.8, d: 270, e: 15, f: 1200 };
+    const done = { a: 38, b: 4.8, d: 270, f: 1200 };
     if (this.reduced) { this.setState({ played: true, cv: done }); return; }
     this.setState({ played: true });
     const t0 = performance.now(), dur = 1500;
     const step = now => {
       const t = Math.min(1, (now - t0) / dur);
-      const e = 1 - Math.pow(1 - t, 3);
-      this.setState({ cv: { a: done.a * e, b: done.b * e, d: done.d * e, e: done.e * e, f: done.f * e } });
+      const ease = 1 - Math.pow(1 - t, 3);
+      this.setState({ cv: { a: done.a * ease, b: done.b * ease, d: done.d * ease, f: done.f * ease } });
       if (t < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
@@ -450,8 +450,7 @@ class Component extends DCLogic {
       { label: 'EXPERIMENT → ONBOARD', value: Math.round(s.cv.a) + '%', desc: 'conversion from experiment to vendor onboarding' },
       { label: 'EVALUATION SPEED', value: s.cv.b.toFixed(1) + '×', desc: 'faster cycles vs traditional procurement' },
       { label: 'COLLEAGUES ENABLED', value: Math.round(s.cv.d) + '+', desc: 'enabled to test vendor technologies' },
-      { label: 'PROGRAMMES', value: String(Math.round(s.cv.e)), desc: 'experimentation programmes across cloud and SaaS' },
-      { label: 'GEN AI ACCESS', value: '~' + Math.round(s.cv.f).toLocaleString('en-GB'), desc: "colleagues, via Barclays' first Gen AI Hackathon environment" }
+      { label: 'HANDS-ON WITH GEN AI', value: '~' + Math.round(s.cv.f).toLocaleString('en-GB'), desc: "colleagues given hands-on access to experiment with Generative AI, via Barclays' first Gen AI Hackathon" }
     ];
 
     const cases = this.CASES.map((c, i) => ({
