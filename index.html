@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ot-accent:#3BE8D2}
+html{scroll-snap-type:y proximity}
+body{margin:0;background:#060B16;color:#E8EDF4;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--ot-accent);text-decoration:none}
+a:hover{color:#FFFFFF}
+::selection{background:var(--ot-accent);color:#060B16}
+@keyframes ot-blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes ot-orbit{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes ot-orbit-rev{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+@keyframes ot-orbit-c{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes ot-pulse{0%,100%{opacity:.25;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+@keyframes ot-drift{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,6px)}}
+@keyframes ot-trail-h{0%{transform:translateX(-20vw);opacity:0}10%{opacity:.4}90%{opacity:.4}100%{transform:translateX(120vw);opacity:0}}
+@keyframes ot-trail-v{0%{transform:translateY(-20vh);opacity:0}10%{opacity:.4}90%{opacity:.4}100%{transform:translateY(120vh);opacity:0}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}html{scroll-snap-type:y mandatory}}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" style="position:relative">
+
+  <!-- scroll track (camera rail) -->
+  <div style="position:relative;z-index:0">
+    <div style="height:85vh;scroll-snap-align:start"></div>
+    <div style="height:85vh;scroll-snap-align:start"></div>
+    <div style="height:85vh;scroll-snap-align:start"></div>
+    <div style="height:85vh;scroll-snap-align:start"></div>
+    <div style="height:85vh;scroll-snap-align:start"></div>
+    <div style="height:85vh;scroll-snap-align:start"></div>
+    <div style="height:85vh;scroll-snap-align:start"></div>
+    <div style="height:100vh;scroll-snap-align:start"></div>
+  </div>
+
+  <!-- blueprint backdrop -->
+  <div style="position:fixed;inset:0;z-index:1;pointer-events:none;background-image:linear-gradient(rgba(94,135,170,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(94,135,170,.06) 1px,transparent 1px);background-size:56px 56px;background-position:center"></div>
+
+  <!-- tron-style light trails along the grid -->
+  <div style="position:fixed;top:16%;left:0;width:220px;height:1px;background:linear-gradient(90deg,transparent,var(--ot-accent),transparent);box-shadow:0 0 8px var(--ot-accent);z-index:1;pointer-events:none;opacity:0;animation:ot-trail-h 11s linear infinite;animation-delay:.5s"></div>
+  <div style="position:fixed;top:63%;left:0;width:160px;height:1px;background:linear-gradient(90deg,transparent,var(--ot-accent),transparent);box-shadow:0 0 8px var(--ot-accent);z-index:1;pointer-events:none;opacity:0;animation:ot-trail-h 14s linear infinite;animation-delay:5s"></div>
+  <div style="position:fixed;top:84%;left:0;width:190px;height:1px;background:linear-gradient(90deg,transparent,var(--ot-accent),transparent);box-shadow:0 0 8px var(--ot-accent);z-index:1;pointer-events:none;opacity:0;animation:ot-trail-h 9.5s linear infinite;animation-delay:8.5s"></div>
+  <div style="position:fixed;left:22%;top:0;height:220px;width:1px;background:linear-gradient(180deg,transparent,var(--ot-accent),transparent);box-shadow:0 0 8px var(--ot-accent);z-index:1;pointer-events:none;opacity:0;animation:ot-trail-v 12.5s linear infinite;animation-delay:2s"></div>
+  <div style="position:fixed;left:78%;top:0;height:170px;width:1px;background:linear-gradient(180deg,transparent,var(--ot-accent),transparent);box-shadow:0 0 8px var(--ot-accent);z-index:1;pointer-events:none;opacity:0;animation:ot-trail-v 15.5s linear infinite;animation-delay:6.5s"></div>
+
+  <div style="position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 40%,#060B16 96%)"></div>
+  <div style="position:fixed;left:0;right:0;top:50%;height:1px;background:rgba(94,135,170,.1);z-index:1;pointer-events:none"></div>
+  <div style="position:fixed;top:0;bottom:0;left:50%;width:1px;background:rgba(94,135,170,.1);z-index:1;pointer-events:none"></div>
+
+  <!-- ═══ LAYER 0 · ARRIVAL ═══ -->
+  <div data-screen-label="L0 Arrival" style="position:fixed;left:50%;top:50%;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;transform:{{ l0.tf }};opacity:{{ l0.o }};visibility:{{ l0.vis }};pointer-events:{{ l0.pe }};z-index:30;will-change:transform,opacity">
+    <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(86vh,96vw);height:min(86vh,96vw);border-radius:50%;border:1px solid rgba(94,135,170,.3)"></div>
+    <div style="position:absolute;left:50%;top:50%;width:min(80vh,90vw);height:min(80vh,90vw);border-radius:50%;border:1px dashed rgba(59,232,210,.3);animation:ot-orbit-c 120s linear infinite"></div>
+    <div style="position:relative;z-index:2;text-align:center;padding:0 24px;max-width:760px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.24em;color:#5E7391;margin-bottom:30px">OLIVER TANNER — CURRICULUM VITAE</div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(24px,4vw,46px);line-height:1.2;margin:0;min-height:2.4em;letter-spacing:-.01em">{{ t1 }}<span style="display:inline-block;width:.55ch;height:1em;vertical-align:-.12em;background:var(--ot-accent);margin-left:3px;animation:ot-blink 1s steps(1) infinite"></span></h1>
+      <p style="opacity:{{ l2op }};transition:opacity 1.2s ease;font-size:clamp(15px,1.9vw,19px);line-height:1.6;color:#9FB0C6;margin:26px auto 0;max-width:560px"><span style="color:#E8EDF4;font-weight:600">Oliver Tanner</span> — helping large organisations adopt AI and emerging technology safely and at pace.</p>
+      <div style="opacity:{{ l2op }};transition:opacity 1.2s ease .4s;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;color:#42546E;margin-top:40px;line-height:2">01 CHALLENGE · 02 ABOUT · 03 EXPERIMENTATION HUB · 04 IMPACT<br>05 CASE STUDIES · 06 PERSPECTIVE · 07 CONTACT</div>
+    </div>
+  </div>
+
+  <!-- ═══ LAYER 1 · THE QUESTION ═══ -->
+  <div data-screen-label="L1 The Question" style="position:fixed;left:50%;top:50%;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;transform:{{ l1.tf }};opacity:{{ l1.o }};visibility:{{ l1.vis }};pointer-events:{{ l1.pe }};z-index:29;will-change:transform,opacity">
+    <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(84vh,94vw);height:min(84vh,94vw);border-radius:50%;border:1px solid rgba(94,135,170,.3);display:flex;justify-content:center"><span style="position:relative;top:-9px;height:18px;background:#060B16;padding:0 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.2em;color:#5E7391">01 / THE CHALLENGE</span></div>
+    <div style="position:absolute;left:50%;top:50%;width:min(78vh,86vw);height:min(78vh,86vw);border-radius:50%;border:1px dashed rgba(59,232,210,.28);animation:ot-orbit-c 100s linear infinite reverse"></div>
+    <div style="position:relative;z-index:2;text-align:center;padding:0 28px;max-width:640px">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(24px,3.4vw,38px);margin:0 0 36px;letter-spacing:-.01em">The Challenge</h2>
+      <div style="display:flex;align-items:center;justify-content:center;gap:clamp(12px,2.6vw,24px);margin-bottom:36px">
+        <div style="transform:translateX({{ convL }}px);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(20px,3.6vw,38px);letter-spacing:.06em">PACE</div>
+        <div style="width:clamp(50px,11vw,140px);height:2px;background:var(--ot-accent);transform:scaleX({{ bridgeT }});transform-origin:center;box-shadow:0 0 14px var(--ot-accent)"></div>
+        <div style="transform:translateX({{ convR }}px);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(20px,3.6vw,38px);letter-spacing:.06em">CONTROL</div>
+      </div>
+      <p style="font-size:clamp(14px,1.6vw,16.5px);line-height:1.7;color:#9FB0C6;margin:0 0 22px">Large, regulated organisations face a hard tension. Move fast on AI and risk losing control. Move carefully and watch competitors pull away.</p>
+      <p style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:clamp(17px,2.2vw,23px);line-height:1.5;margin:0">Every business leader is asking the same question: <span style="color:var(--ot-accent)">what can AI actually do for us — and how do we find out safely?</span></p>
+    </div>
+  </div>
+
+  <!-- ═══ LAYER 2 · THE BRIDGE ═══ -->
+  <div data-screen-label="L2 The Bridge" style="position:fixed;left:50%;top:50%;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;transform:{{ l2.tf }};opacity:{{ l2.o }};visibility:{{ l2.vis }};pointer-events:{{ l2.pe }};z-index:28;will-change:transform,opacity">
+    <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(84vh,94vw);height:min(84vh,94vw);border-radius:50%;border:1px solid rgba(94,135,170,.3);display:flex;justify-content:center"><span style="position:relative;top:-9px;height:18px;background:#060B16;padding:0 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.2em;color:#5E7391">02 / ABOUT</span></div>
+    <div style="position:relative;z-index:2;text-align:center;padding:0 28px;max-width:640px;display:flex;flex-direction:column;align-items:center">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(24px,3.4vw,38px);margin:0 0 8px;letter-spacing:-.01em">About</h2>
+      <div style="width:clamp(210px,32vh,290px);height:clamp(210px,32vh,290px);position:relative;flex:none;margin:6px 0">
+        <div style="position:absolute;left:50%;top:50%;width:58%;height:58%;border:1px solid rgba(94,115,145,.4);border-radius:50%;transform:translate(-50%,-50%)"></div>
+        <div style="position:absolute;left:50%;top:50%;width:80%;height:80%;border:1px solid rgba(94,115,145,.3);border-radius:50%;transform:translate(-50%,-50%)"></div>
+        <div style="position:absolute;left:50%;top:50%;width:100%;height:100%;border:1px solid rgba(94,115,145,.2);border-radius:50%;transform:translate(-50%,-50%)"></div>
+        <div style="position:absolute;left:50%;top:50%;width:38%;height:38%;border:1px solid rgba(94,115,145,.45);border-radius:50%;transform:translate(-50%,-50%)"></div>
+        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:62px;height:62px;border-radius:50%;background:rgba(59,232,210,.1);border:1.5px solid var(--ot-accent);box-shadow:0 0 26px rgba(59,232,210,.35);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:var(--ot-accent);z-index:2">OT</div>
+        <div style="position:absolute;inset:0;animation:ot-orbit 26s linear infinite">
+          <div style="position:absolute;left:50%;top:21%;transform:translate(-50%,-50%)"><span style="display:inline-block;animation:ot-orbit-rev 26s linear infinite;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;padding:4px 10px;border-radius:999px;background:#0A1322;border:1px solid rgba(94,115,145,.5);white-space:nowrap">BUSINESS</span></div>
+        </div>
+        <div style="position:absolute;inset:0;animation:ot-orbit 38s linear infinite;animation-delay:-13s">
+          <div style="position:absolute;left:50%;top:10%;transform:translate(-50%,-50%)"><span style="display:inline-block;animation:ot-orbit-rev 38s linear infinite;animation-delay:-13s;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;padding:4px 10px;border-radius:999px;background:#0A1322;border:1px solid rgba(94,115,145,.5);white-space:nowrap">TECHNOLOGY</span></div>
+        </div>
+        <div style="position:absolute;inset:0;animation:ot-orbit 50s linear infinite;animation-delay:-30s">
+          <div style="position:absolute;left:50%;top:0%;transform:translate(-50%,-50%)"><span style="display:inline-block;animation:ot-orbit-rev 50s linear infinite;animation-delay:-30s;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;padding:4px 10px;border-radius:999px;background:#0A1322;border:1px solid rgba(94,115,145,.5);white-space:nowrap">RISK &amp; CONTROL</span></div>
+        </div>
+        <div style="position:absolute;inset:0;animation:ot-orbit 20s linear infinite;animation-delay:-6s">
+          <div style="position:absolute;left:50%;top:31%;transform:translate(-50%,-50%)"><span style="display:inline-block;animation:ot-orbit-rev 20s linear infinite;animation-delay:-6s;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;padding:4px 10px;border-radius:999px;background:#0A1322;border:1px solid rgba(94,115,145,.5);white-space:nowrap">INNOVATION</span></div>
+        </div>
+      </div>
+      <p style="font-size:clamp(14px,1.7vw,17px);line-height:1.7;color:#C4D0E0;margin:10px 0 12px;max-width:560px">Innovation Lead who designs and operates the platforms, governance and capability-building mechanisms that let large organisations experiment with — and adopt — emerging technologies safely and at pace.</p>
+      <p style="font-size:clamp(12.5px,1.4vw,14.5px);line-height:1.65;color:#9FB0C6;margin:0;max-width:520px">Specialist in AI, Generative AI and emerging tech — at the intersection of business leadership, technology, and control functions. Track record of building innovation functions from zero to enterprise scale.</p>
+    </div>
+  </div>
+
+  <!-- ═══ LAYER 3 · THE LABORATORY ═══ -->
+  <div data-screen-label="L3 The Laboratory" style="position:fixed;left:50%;top:50%;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;transform:{{ l3.tf }};opacity:{{ l3.o }};visibility:{{ l3.vis }};pointer-events:{{ l3.pe }};z-index:27;will-change:transform,opacity">
+    <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(84vh,94vw);height:min(84vh,94vw);border-radius:50%;border:1px solid rgba(94,135,170,.3);display:flex;justify-content:center"><span style="position:relative;top:-9px;height:18px;background:#060B16;padding:0 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.2em;color:#5E7391">03 / EXPERIMENTATION HUB</span></div>
+    <div style="position:absolute;left:50%;top:50%;width:min(78vh,86vw);height:min(78vh,86vw);border-radius:50%;border:1px dashed rgba(59,232,210,.28);animation:ot-orbit-c 100s linear infinite"></div>
+    <div style="position:relative;z-index:2;padding:0 22px;width:min(620px,94vw);box-sizing:border-box">
+      <div style="text-align:center;margin-bottom:22px">
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(24px,3.4vw,38px);margin:0 0 12px;letter-spacing:-.01em">Experimentation Hub</h2>
+        <p style="font-size:clamp(13px,1.5vw,15.5px);line-height:1.65;color:#9FB0C6;margin:0"><span style="color:#E8EDF4;font-weight:600">Product Owner, Barclays Experimentation Hub</span> · 2025–present. Inception to launch and ongoing operation — product vision, operating model, governance framework. Business units test third-party AI in low-risk, self-service environments.</p>
+      </div>
+      <div style="background:rgba(10,19,34,.92);border:1px solid rgba(94,135,170,.32);border-radius:12px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5)">
+        <div style="display:flex;align-items:center;gap:7px;padding:10px 14px;border-bottom:1px solid rgba(94,135,170,.22);background:rgba(6,11,22,.6)">
+          <span style="width:9px;height:9px;border-radius:50%;background:#31435C"></span>
+          <span style="width:9px;height:9px;border-radius:50%;background:#31435C"></span>
+          <span style="width:9px;height:9px;border-radius:50%;background:var(--ot-accent)"></span>
+          <span style="margin-left:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:#5E7391">experiment_console — click a stage</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;padding:14px 14px 2px">
+          <sc-for list="{{ stageItems }}" as="s" hint-placeholder-count="5">
+            <button onClick="{{ s.onClick }}" style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;padding:8px 12px;border-radius:7px;cursor:pointer;background:{{ s.bg }};border:1px solid {{ s.border }};color:{{ s.color }};transition:all .25s;min-height:36px">{{ s.name }}</button>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:5px;padding:12px 14px 0">
+          <sc-for list="{{ segs }}" as="g" hint-placeholder-count="5">
+            <div style="flex:1;height:3px;border-radius:2px;background:{{ g.bg }};transition:background .3s"></div>
+          </sc-for>
+        </div>
+        <div style="padding:14px 14px 18px;font-family:'IBM Plex Mono',monospace">
+          <div style="font-size:11.5px;color:var(--ot-accent);letter-spacing:.1em;margin-bottom:7px">&gt; STAGE {{ stageNum }}/5 — {{ stageName }}</div>
+          <div style="font-size:12.5px;line-height:1.65;color:#C4D0E0;min-height:3.2em">{{ stageDesc }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ LAYER 4 · THE EVIDENCE ═══ -->
+  <div data-screen-label="L4 The Evidence" style="position:fixed;left:50%;top:50%;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;transform:{{ l4.tf }};opacity:{{ l4.o }};visibility:{{ l4.vis }};pointer-events:{{ l4.pe }};z-index:26;will-change:transform,opacity">
+    <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(84vh,94vw);height:min(84vh,94vw);border-radius:50%;border:1px solid rgba(94,135,170,.3);display:flex;justify-content:center"><span style="position:relative;top:-9px;height:18px;background:#060B16;padding:0 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.2em;color:#5E7391">04 / IMPACT</span></div>
+    <div style="position:absolute;left:50%;top:50%;width:min(78vh,86vw);height:min(78vh,86vw);border-radius:50%;border:1px dashed rgba(59,232,210,.28);animation:ot-orbit-c 100s linear infinite reverse"></div>
+    <div style="position:relative;z-index:2;padding:0 22px;width:min(760px,94vw);box-sizing:border-box">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(24px,3.4vw,38px);margin:0 0 20px;letter-spacing:-.01em;text-align:center">Impact</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px">
+        <sc-for list="{{ statItems }}" as="st" hint-placeholder-count="6">
+          <div style="background:rgba(6,11,22,.85);border:1px solid rgba(94,135,170,.25);border-radius:10px;padding:15px 14px" style-hover="border-color:var(--ot-accent)">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.16em;color:#5E7391;margin-bottom:9px">{{ st.label }}</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(24px,2.6vw,32px);color:var(--ot-accent);line-height:1;margin-bottom:8px;font-variant-numeric:tabular-nums">{{ st.value }}</div>
+            <div style="font-size:11.5px;line-height:1.5;color:#9FB0C6">{{ st.desc }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ LAYER 5 · THE STORIES ═══ -->
+  <div data-screen-label="L5 The Stories" style="position:fixed;left:50%;top:50%;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;transform:{{ l5.tf }};opacity:{{ l5.o }};visibility:{{ l5.vis }};pointer-events:{{ l5.pe }};z-index:25;will-change:transform,opacity">
+    <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(84vh,94vw);height:min(84vh,94vw);border-radius:50%;border:1px solid rgba(94,135,170,.3);display:flex;justify-content:center"><span style="position:relative;top:-9px;height:18px;background:#060B16;padding:0 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.2em;color:#5E7391">05 / CASE STUDIES</span></div>
+    <div style="position:relative;z-index:2;padding:0 22px;width:min(580px,94vw);box-sizing:border-box">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(24px,3.4vw,38px);margin:0 0 18px;letter-spacing:-.01em;text-align:center">Case Studies</h2>
+      <div style="display:flex;flex-direction:column;gap:9px;max-height:64vh;overflow-y:auto;padding-right:2px">
+        <sc-for list="{{ cases }}" as="c" hint-placeholder-count="6">
+          <div onClick="{{ c.onClick }}" role="button" tabIndex="0" style="background:rgba(10,19,34,.92);border:1px solid {{ c.bcol }};border-radius:10px;padding:14px 16px;cursor:pointer;transition:border-color .3s" style-hover="border-color:var(--ot-accent)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="flex:1;min-width:0">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.16em;color:var(--ot-accent);margin-bottom:4px">{{ c.tag }}</div>
+                <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(15px,1.8vw,17.5px)">{{ c.title }}</div>
+              </div>
+              <div style="flex:none;width:26px;height:26px;border-radius:50%;border:1px solid rgba(94,135,170,.4);display:flex;align-items:center;justify-content:center;color:var(--ot-accent);font-size:15px;transform:{{ c.rot }};transition:transform .35s cubic-bezier(.22,1,.36,1)">+</div>
+            </div>
+            <div style="max-height:{{ c.maxH }};opacity:{{ c.op }};overflow:hidden;transition:max-height .45s cubic-bezier(.22,1,.36,1),opacity .35s">
+              <p style="font-size:13.5px;line-height:1.65;color:#9FB0C6;margin:12px 0 2px">{{ c.body }}</p>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ LAYER 6 · FUTURE OF WORK ═══ -->
+  <div data-screen-label="L6 Future of Work" style="position:fixed;left:50%;top:50%;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;transform:{{ l6.tf }};opacity:{{ l6.o }};visibility:{{ l6.vis }};pointer-events:{{ l6.pe }};z-index:24;will-change:transform,opacity">
+    <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(84vh,94vw);height:min(84vh,94vw);border-radius:50%;border:1px solid rgba(94,135,170,.3);display:flex;justify-content:center"><span style="position:relative;top:-9px;height:18px;background:#060B16;padding:0 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.2em;color:#5E7391">06 / PERSPECTIVE</span></div>
+    <div style="position:absolute;left:50%;top:50%;width:min(78vh,86vw);height:min(78vh,86vw);border-radius:50%;border:1px dashed rgba(59,232,210,.28);animation:ot-orbit-c 100s linear infinite"></div>
+    <div style="position:relative;z-index:2;padding:0 22px;width:min(860px,94vw);box-sizing:border-box">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(24px,3.4vw,38px);margin:0 0 20px;letter-spacing:-.01em;text-align:center">Perspective</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;max-height:64vh;overflow-y:auto">
+        <div style="background:rgba(6,11,22,.85);border:1px solid rgba(94,135,170,.25);border-radius:10px;padding:18px 18px">
+          <div style="display:flex;gap:7px;margin-bottom:14px">
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--ot-accent);animation:ot-pulse 2.4s ease-in-out infinite"></div>
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--ot-accent);animation:ot-pulse 2.4s ease-in-out infinite;animation-delay:.4s"></div>
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--ot-accent);animation:ot-pulse 2.4s ease-in-out infinite;animation-delay:.8s"></div>
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--ot-accent);animation:ot-pulse 2.4s ease-in-out infinite;animation-delay:1.2s"></div>
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--ot-accent);animation:ot-pulse 2.4s ease-in-out infinite;animation-delay:1.6s"></div>
+          </div>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15.5px;margin:0 0 8px;line-height:1.4">AI won't replace teams — it will restructure how teams learn.</h3>
+          <p style="font-size:12.5px;line-height:1.6;color:#9FB0C6;margin:0">The organisations that win build capability broadly — 1,200-person hackathons, not 12-person pilots.</p>
+        </div>
+        <div style="background:rgba(6,11,22,.85);border:1px solid rgba(94,135,170,.25);border-radius:10px;padding:18px 18px">
+          <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;height:24px">
+            <div style="width:2px;height:24px;background:rgba(94,135,170,.5)"></div>
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--ot-accent);box-shadow:0 0 10px var(--ot-accent);animation:ot-pulse 1.8s ease-in-out infinite"></div>
+            <div style="width:2px;height:24px;background:rgba(94,135,170,.5)"></div>
+          </div>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15.5px;margin:0 0 8px;line-height:1.4">Governance is an accelerant, not a brake.</h3>
+          <p style="font-size:12.5px;line-height:1.6;color:#9FB0C6;margin:0">Well-designed guardrails are what let regulated firms move faster than their competitors.</p>
+        </div>
+        <div style="background:rgba(6,11,22,.85);border:1px solid rgba(94,135,170,.25);border-radius:10px;padding:18px 18px">
+          <div style="display:flex;align-items:flex-end;gap:7px;margin-bottom:14px;height:24px">
+            <div style="width:10px;height:12px;background:rgba(94,135,170,.5);border-radius:2px 2px 0 0"></div>
+            <div style="width:10px;height:18px;background:rgba(94,135,170,.5);border-radius:2px 2px 0 0"></div>
+            <div style="width:10px;height:24px;background:var(--ot-accent);border-radius:2px 2px 0 0;animation:ot-pulse 2.6s ease-in-out infinite"></div>
+          </div>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15.5px;margin:0 0 8px;line-height:1.4">Evidence beats opinion.</h3>
+          <p style="font-size:12.5px;line-height:1.6;color:#9FB0C6;margin:0">The future belongs to organisations that can run cheap, fast, safe experiments — and let the results decide.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ LAYER 7 · CONTACT ═══ -->
+  <div data-screen-label="L7 Credentials & Contact" style="position:fixed;left:50%;top:50%;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;transform:{{ l7.tf }};opacity:{{ l7.o }};visibility:{{ l7.vis }};pointer-events:{{ l7.pe }};z-index:23;will-change:transform,opacity">
+    <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(84vh,94vw);height:min(84vh,94vw);border-radius:50%;border:1px solid var(--ot-accent);box-shadow:0 0 60px rgba(59,232,210,.15) inset;display:flex;justify-content:center"><span style="position:relative;top:-9px;height:18px;background:#060B16;padding:0 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.2em;color:var(--ot-accent)">07 / CONTACT</span></div>
+    <div style="position:relative;z-index:2;text-align:center;padding:0 26px;max-width:520px;width:100%;box-sizing:border-box">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(26px,4.4vw,44px);margin:0 0 12px;letter-spacing:-.01em">Get in touch</h2>
+      <p style="font-size:clamp(13px,1.5vw,15px);line-height:1.6;color:#9FB0C6;margin:0 0 26px">Oliver Tanner · VP, Innovation &amp; Strategy Lead, AI &amp; Emerging Technologies · Barclays</p>
+      <a href="mailto:Tanneroliver1@gmail.com" style="display:inline-flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif;font-size:15px;letter-spacing:.01em;color:#060B16;background:var(--ot-accent);padding:14px 28px;border-radius:8px;font-weight:600;box-shadow:0 0 32px rgba(59,232,210,.3);transition:transform .25s,box-shadow .25s;min-height:44px;box-sizing:border-box" style-hover="transform:translateY(-2px);box-shadow:0 0 48px rgba(59,232,210,.5);color:#060B16">Tanneroliver1@gmail.com</a>
+      <div style="text-align:left;margin-top:44px;border-top:1px solid rgba(94,135,170,.25)">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;color:#5E7391;margin:20px 0 4px">CREDENTIALS</div>
+        <sc-for list="{{ credItems }}" as="cr" hint-placeholder-count="6">
+          <div style="display:flex;gap:16px;padding:11px 0;border-bottom:1px solid rgba(94,135,170,.14)">
+            <span style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ot-accent);width:44px">{{ cr.year }}</span>
+            <span style="font-size:13.5px;line-height:1.5;color:#C4D0E0">{{ cr.desc }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ HUD ═══ -->
+  <div style="position:fixed;left:18px;top:16px;z-index:60;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;color:#5E7391;pointer-events:none;line-height:1.9">OLIVER TANNER · CV<br><span style="color:var(--ot-accent)">{{ layerName }}</span></div>
+  <div style="position:fixed;left:12px;top:12px;width:20px;height:20px;border-left:1.5px solid rgba(59,232,210,.5);border-top:1.5px solid rgba(59,232,210,.5);z-index:59;pointer-events:none"></div>
+  <div style="position:fixed;right:12px;top:12px;width:20px;height:20px;border-right:1.5px solid rgba(59,232,210,.5);border-top:1.5px solid rgba(59,232,210,.5);z-index:59;pointer-events:none"></div>
+  <div style="position:fixed;left:12px;bottom:12px;width:20px;height:20px;border-left:1.5px solid rgba(59,232,210,.5);border-bottom:1.5px solid rgba(59,232,210,.5);z-index:59;pointer-events:none"></div>
+  <div style="position:fixed;right:12px;bottom:12px;width:20px;height:20px;border-right:1.5px solid rgba(59,232,210,.5);border-bottom:1.5px solid rgba(59,232,210,.5);z-index:59;pointer-events:none"></div>
+
+  <nav aria-label="Layers" style="position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:60;display:flex;flex-direction:column;align-items:flex-end;gap:12px">
+    <sc-for list="{{ dots }}" as="d" hint-placeholder-count="8">
+      <button onClick="{{ d.onClick }}" title="{{ d.label }}" aria-label="{{ d.label }}" style="display:flex;align-items:center;gap:8px;padding:2px;border:none;background:none;cursor:pointer"><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.12em;color:{{ d.lcol }};transition:color .3s">{{ d.tick }}</span><span style="display:block;width:{{ d.w }}px;height:2px;background:{{ d.bg }};transition:all .3s"></span></button>
+    </sc-for>
+  </nav>
+
+  <div style="position:fixed;bottom:20px;left:50%;transform:translate(-50%,0);z-index:60;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.18em;color:var(--ot-accent);opacity:{{ hintOp }};transition:opacity .5s;pointer-events:none;animation:ot-drift 2.6s ease-in-out infinite;white-space:nowrap">SCROLL TO CONTINUE — {{ nextName }}</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#3BE8D2&quot;,&quot;options&quot;:[&quot;#3BE8D2&quot;,&quot;#6FA8FF&quot;,&quot;#C9F76A&quot;,&quot;#F5B85C&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;autoCycleConsole&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;}}">
+class Component extends DCLogic {
+  rootRef = React.createRef();
+
+  state = {
+    c: 0, active: 0,
+    t1: '', l2: false,
+    played: false, cv: { a: 0, b: 0, d: 0, e: 0, f: 0 },
+    stage: 0, open: -1
+  };
+
+  L1 = "Innovation Lead, AI & Emerging Technologies";
+  K = 3.4;
+
+  NAMES = ['OVERVIEW', 'THE CHALLENGE', 'ABOUT', 'EXPERIMENTATION HUB', 'IMPACT', 'CASE STUDIES', 'PERSPECTIVE', 'CONTACT'];
+
+  STAGES = [
+    { name: 'DEFINE', desc: 'Frame the business question and success criteria before any technology is touched.' },
+    { name: 'SHAPE', desc: 'Design the smallest safe experiment — scope, data, guardrails and exit criteria.' },
+    { name: 'TEST', desc: 'Run it in a low-risk, self-service environment, with real colleagues on real problems.' },
+    { name: 'EVIDENCE', desc: 'Capture telemetry and structured feedback. Numbers, not anecdotes.' },
+    { name: 'DECIDE', desc: 'Adopt, iterate, or stop — with an evidence pack the business can trust.' }
+  ];
+
+  CREDS = [
+    { year: '2026', desc: 'MIT — Quantum Computing Fundamentals' },
+    { year: '2024', desc: 'Oxford — AI: Generative AI, Cloud & MLOps' },
+    { year: 'AWS', desc: 'Solutions Architect Associate & Cloud Practitioner' },
+    { year: '2024', desc: 'Barclays Leadership Program' },
+    { year: '2023', desc: 'Barclays Group Technology Award for Change' },
+    { year: 'BSc', desc: 'Physics (2:1), University of Exeter' }
+  ];
+
+  CASES = [
+    { tag: 'US CONSUMER BANK · AGENTIC AI', title: 'Customer Virtual Assistant', body: 'Shaped an AI-driven Customer Virtual Assistant — translating strategic objectives into an agentic AI use case, supporting governance, experimentation and executive decision-making.' },
+    { tag: 'LEGAL · FRONTIER AI', title: 'AI in legal workflows', body: 'Assessed frontier AI capability in legal workflows through vendor-led experimentation, informing adoption decisions.' },
+    { tag: '2024 · GENERATIVE AI', title: "Barclays' First Gen AI Hackathon", body: 'Designed and ran the environment behind an enterprise-wide hackathon, giving roughly 1,200 colleagues hands-on access to Generative AI and surfacing use cases now feeding the adoption pipeline.' },
+    { tag: 'EXECUTIVE ENGAGEMENT', title: 'Advising senior leadership', body: 'Briefs and advises senior executives and control functions on AI strategy and risk, translating emerging technology capability into decisions leadership can act on.' },
+    { tag: '2021–2024', title: 'Innovation Sandbox', body: "Created and scaled Barclays' repeatable, enterprise-grade mechanism for testing fintech and AI — enabling Barclays' first Generative AI proof-of-concept and an operating model now reused across innovation initiatives." },
+    { tag: '2020–2021', title: 'Innovation Hub', body: 'Connected external innovators to live Barclays business challenges. ~20% of sourced solutions progressed to proof-of-concept or proof-of-value, with strong representation from under-represented founder groups.' }
+  ];
+
+  componentDidMount() {
+    this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.applyAccent();
+    this.startTyping();
+    this.initScroll();
+    this.syncCycle();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.accent !== this.props.accent) this.applyAccent();
+    if (prevProps.autoCycleConsole !== this.props.autoCycleConsole) this.syncCycle();
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._typeT); clearTimeout(this._l2T); clearInterval(this._cycleT);
+    window.removeEventListener('scroll', this._onScroll);
+  }
+
+  applyAccent() {
+    const el = this.rootRef.current;
+    if (el) el.style.setProperty('--ot-accent', this.props.accent ?? '#3BE8D2');
+  }
+
+  startTyping() {
+    if (this.reduced) { this.setState({ t1: this.L1, l2: true }); return; }
+    let i = 0;
+    this._typeT = setInterval(() => {
+      i++;
+      this.setState({ t1: this.L1.slice(0, i) });
+      if (i >= this.L1.length) {
+        clearInterval(this._typeT);
+        this._l2T = setTimeout(() => this.setState({ l2: true }), 500);
+      }
+    }, 34);
+  }
+
+  syncCycle() {
+    clearInterval(this._cycleT);
+    if (this.props.autoCycleConsole) {
+      this._cycleT = setInterval(() => this.setState(s => ({ stage: (s.stage + 1) % 5 })), 2800);
+    }
+  }
+
+  computeC() {
+    const vh = window.innerHeight;
+    const segH = vh * 0.85;
+    const y = window.scrollY;
+    let seg = Math.min(6, Math.floor(y / segH));
+    let t = Math.min(1, Math.max(0, (y - seg * segH) / segH));
+    if (y >= 7 * segH) return 7;
+    // dwell for first 45% of segment, then ease to next layer
+    let x = Math.max(0, (t - 0.45) / 0.55);
+    x = x * x * (3 - 2 * x);
+    let c = seg + x;
+    if (this.reduced) c = Math.round(c);
+    return Math.min(7, c);
+  }
+
+  initScroll() {
+    let ticking = false;
+    this._onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const c = Math.round(this.computeC() * 1000) / 1000;
+        const active = Math.min(7, Math.round(c));
+        if (c !== this.state.c || active !== this.state.active) this.setState({ c, active });
+        if (active === 4) this.startCounters();
+      });
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+    this._onScroll();
+  }
+
+  startCounters() {
+    if (this.state.played) return;
+    const done = { a: 38, b: 4.8, d: 270, e: 15, f: 1200 };
+    if (this.reduced) { this.setState({ played: true, cv: done }); return; }
+    this.setState({ played: true });
+    const t0 = performance.now(), dur = 1500;
+    const step = now => {
+      const t = Math.min(1, (now - t0) / dur);
+      const e = 1 - Math.pow(1 - t, 3);
+      this.setState({ cv: { a: done.a * e, b: done.b * e, d: done.d * e, e: done.e * e, f: done.f * e } });
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  navTo(i) {
+    const top = i * window.innerHeight * 0.85;
+    window.scrollTo({ top, behavior: this.reduced ? 'auto' : 'smooth' });
+  }
+
+  layer(i) {
+    const c = this.state.c;
+    const d = c - i;
+    if (this.reduced) {
+      const on = Math.round(c) === i;
+      return { tf: 'translate(-50%,-50%) scale(1)', o: on ? 1 : 0, vis: on ? 'visible' : 'hidden', pe: on ? 'auto' : 'none' };
+    }
+    const s = Math.pow(this.K, d);
+    const oin = Math.min(1, Math.max(0, (d + 0.85) / 0.6));
+    const oout = 1 - Math.min(1, Math.max(0, (d - 0.2) / 0.5));
+    const o = Math.round(Math.max(0, Math.min(oin, oout)) * 1000) / 1000;
+    const vis = o > 0.012 ? 'visible' : 'hidden';
+    return {
+      tf: 'translate(-50%,-50%) scale(' + s.toFixed(4) + ')',
+      o, vis,
+      pe: Math.abs(d) < 0.35 ? 'auto' : 'none'
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const acc = this.props.accent ?? '#3BE8D2';
+    const layers = {};
+    for (let i = 0; i <= 7; i++) layers['l' + i] = this.layer(i);
+
+    const dots = this.NAMES.map((label, i) => ({
+      label,
+      tick: '0' + i,
+      onClick: () => this.navTo(i),
+      bg: s.active === i ? acc : 'rgba(94,115,145,.4)',
+      lcol: s.active === i ? acc : '#42546E',
+      w: s.active === i ? 26 : 14
+    }));
+
+    const stageItems = this.STAGES.map((st, i) => ({
+      name: st.name,
+      onClick: () => { clearInterval(this._cycleT); this.setState({ stage: i }); },
+      bg: s.stage === i ? 'rgba(59,232,210,.12)' : 'rgba(6,11,22,.5)',
+      border: s.stage === i ? acc : 'rgba(94,135,170,.3)',
+      color: s.stage === i ? acc : '#8FA2BC'
+    }));
+    const segs = this.STAGES.map((_, i) => ({ bg: i <= s.stage ? acc : 'rgba(94,135,170,.25)' }));
+
+    const statItems = [
+      { label: 'EXPERIMENT → ONBOARD', value: Math.round(s.cv.a) + '%', desc: 'conversion from experiment to vendor onboarding' },
+      { label: 'EVALUATION SPEED', value: s.cv.b.toFixed(1) + '×', desc: 'faster cycles vs traditional procurement' },
+      { label: 'COST SAVINGS', value: '£0.21–0.46M', desc: 'estimated cost savings' },
+      { label: 'COLLEAGUES ENABLED', value: Math.round(s.cv.d) + '+', desc: 'enabled to test vendor technologies' },
+      { label: 'PROGRAMMES', value: String(Math.round(s.cv.e)), desc: 'experimentation programmes across cloud and SaaS' },
+      { label: 'GEN AI ACCESS', value: '~' + Math.round(s.cv.f).toLocaleString('en-GB'), desc: "colleagues, via Barclays' first Gen AI Hackathon environment" }
+    ];
+
+    const cases = this.CASES.map((c, i) => ({
+      ...c,
+      onClick: () => this.setState(st => ({ open: st.open === i ? -1 : i })),
+      maxH: s.open === i ? '360px' : '0px',
+      op: s.open === i ? 1 : 0,
+      rot: s.open === i ? 'rotate(45deg)' : 'rotate(0deg)',
+      bcol: s.open === i ? acc : 'rgba(94,135,170,.28)'
+    }));
+
+    const conv = this.reduced ? 1 : Math.min(1, Math.max(0, (s.c - 0.45) / 0.5));
+    const next = Math.min(7, s.active + 1);
+
+    return {
+      rootRef: this.rootRef,
+      ...layers,
+      t1: s.t1,
+      l2op: s.l2 ? 1 : 0,
+      convL: Math.round(-56 * (1 - conv)),
+      convR: Math.round(56 * (1 - conv)),
+      bridgeT: conv,
+      dots, stageItems, segs, statItems, cases,
+      credItems: this.CREDS,
+      stageNum: s.stage + 1,
+      stageName: this.STAGES[s.stage].name,
+      stageDesc: this.STAGES[s.stage].desc,
+      layerNum: s.active,
+      layerName: this.NAMES[s.active],
+      depthStr: s.c.toFixed(2) + ' / 7.00',
+      hintOp: s.c > 6.6 ? 0 : 1,
+      nextName: '0' + next + ' ' + this.NAMES[next]
+    };
+  }
+}
+</script>
+</body>
+</html>
